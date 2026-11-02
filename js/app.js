@@ -1,6 +1,117 @@
-// ITCS333 A3 starter — implement the to-do app per README.
-// You may wrap everything in a DOMContentLoaded handler or an IIFE.
-// Requirements: add / toggle-complete / delete / filter / counter,
-// using event delegation on #todo-list.
 
-// TODO: your code here
+(() => {
+    'use strict';
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const input = document.getElementById('todo-input');
+        const addButton = document.getElementById('add-btn');
+        const todoList = document.getElementById('todo-list');
+        const errorMsg = document.getElementById('error-msg');
+        const counter = document.getElementById('counter');
+
+        const filterAll = document.getElementById('filter-all');
+        const filterActive = document.getElementById('filter-active');
+        const filterDone = document.getElementById('filter-done');
+
+        let currentFilter = 'all';
+
+        function updateCounter() {
+            const items = todoList.querySelectorAll('li');
+            const remaining = Array.from(items).filter(
+                item => !item.classList.contains('completed')
+            ).length;
+
+            counter.textContent = `${remaining} item(s) left`;
+        }
+
+        function applyFilter() {
+            const items = todoList.querySelectorAll('li');
+
+            items.forEach(item => {
+                const completed = item.classList.contains('completed');
+
+                if (currentFilter === 'active') {
+                    item.hidden = completed;
+                } else if (currentFilter === 'done') {
+                    item.hidden = !completed;
+                } else {
+                    item.hidden = false;
+                }
+            });
+        }
+
+        function addTodo() {
+            const text = input.value.trim();
+
+            if (!text) {
+                errorMsg.hidden = false;
+                return;
+            }
+
+            errorMsg.hidden = true;
+
+            const li = document.createElement('li');
+            li.textContent = text;
+
+            const deleteButton = document.createElement('button');
+            deleteButton.type = 'button';
+            deleteButton.textContent = 'Delete';
+            deleteButton.classList.add('delete-btn');
+
+            li.appendChild(deleteButton);
+            todoList.appendChild(li);
+
+            input.value = '';
+
+            applyFilter();
+            updateCounter();
+        }
+
+        addButton.addEventListener('click', addTodo);
+
+        input.addEventListener('keydown', event => {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                addTodo();
+            }
+        });
+
+        // Single event listener using event delegation.
+        todoList.addEventListener('click', event => {
+            const deleteButton = event.target.closest('.delete-btn');
+
+            if (deleteButton && todoList.contains(deleteButton)) {
+                deleteButton.closest('li').remove();
+                updateCounter();
+                return;
+            }
+
+            const li = event.target.closest('li');
+
+            if (li && todoList.contains(li)) {
+                li.classList.toggle('completed');
+                applyFilter();
+                updateCounter();
+            }
+        });
+
+        filterAll.addEventListener('click', () => {
+            currentFilter = 'all';
+            applyFilter();
+        });
+
+        filterActive.addEventListener('click', () => {
+            currentFilter = 'active';
+            applyFilter();
+        });
+
+        filterDone.addEventListener('click', () => {
+            currentFilter = 'done';
+            applyFilter();
+        });
+
+        errorMsg.hidden = true;
+        updateCounter();
+        applyFilter();
+    });
+})();
