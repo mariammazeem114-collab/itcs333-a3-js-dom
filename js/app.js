@@ -15,6 +15,7 @@
 
         let currentFilter = 'all';
 
+        // Update the remaining-items counter.
         function updateCounter() {
             const items = todoList.querySelectorAll('li');
             const remaining = Array.from(items).filter(
@@ -24,26 +25,28 @@
             counter.textContent = `${remaining} item(s) left`;
         }
 
+        // Apply the currently selected filter.
         function applyFilter() {
             const items = todoList.querySelectorAll('li');
 
             items.forEach(item => {
-                const completed = item.classList.contains('completed');
+                const isCompleted = item.classList.contains('completed');
 
                 if (currentFilter === 'active') {
-                    item.hidden = completed;
+                    item.hidden = isCompleted;
                 } else if (currentFilter === 'done') {
-                    item.hidden = !completed;
+                    item.hidden = !isCompleted;
                 } else {
                     item.hidden = false;
                 }
             });
         }
 
+        // Add a new todo item.
         function addTodo() {
             const text = input.value.trim();
 
-            if (!text) {
+            if (text === '') {
                 errorMsg.hidden = false;
                 return;
             }
@@ -54,9 +57,9 @@
             li.textContent = text;
 
             const deleteButton = document.createElement('button');
-            deleteButton.type = 'button';
             deleteButton.textContent = 'Delete';
             deleteButton.classList.add('delete-btn');
+            deleteButton.type = 'button';
 
             li.appendChild(deleteButton);
             todoList.appendChild(li);
@@ -67,8 +70,10 @@
             updateCounter();
         }
 
+        // Add using the button.
         addButton.addEventListener('click', addTodo);
 
+        // Add using Enter.
         input.addEventListener('keydown', event => {
             if (event.key === 'Enter') {
                 event.preventDefault();
@@ -76,7 +81,7 @@
             }
         });
 
-        // Single event listener using event delegation.
+        // Event delegation: one listener for all todo items.
         todoList.addEventListener('click', event => {
             const deleteButton = event.target.closest('.delete-btn');
 
@@ -95,6 +100,7 @@
             }
         });
 
+        // Filter buttons.
         filterAll.addEventListener('click', () => {
             currentFilter = 'all';
             applyFilter();
@@ -110,6 +116,7 @@
             applyFilter();
         });
 
+        // Initial state.
         errorMsg.hidden = true;
         updateCounter();
         applyFilter();
